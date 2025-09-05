@@ -114,9 +114,40 @@ export class EnrollmentsService {
         ).sort((a,b) => (a.position || 0) - (b.position || 0));
     }
 
-    // async dropStudent(studenId: number, courseId: number): Promise<{success: boolean; processedWaitList?: Enrollment}>{
+    async dropStudent(studenId: number, courseId: number): Promise<{success: boolean; processedWaitList?: Enrollment}>{
       
-    // }
+        const enrollment = this.enrollments.find(
+            e => e.studentId === studenId &&
+                 e.courseId === courseId &&
+                 e.status === EnrollmentStatus.ENROLLED
+        );
+
+        if(!enrollment){
+            throw new EnrollmentNotAllowedException('Enrollment not found or already processed');
+        }
+
+        enrollment.status = EnrollmentStatus.DROPPED;
+
+        this.studentService.updateEnrollmentCount(studenId,-1);
+        this.courseService.updateEnrollmentCount(courseId,-1);
+
+        const nextInWaitList = this.enrollments
+        .filter(e => e.courseId === courseId && e.status === EnrollmentStatus.WAITLIST)
+        .sort((a,b) => (a.position || 0) - (b.position || 0))[0];
+
+        if(nextInWaitList){
+            nextInWaitList.status = EnrollmentStatus.ENROLLED;
+            delete nextInWaitList.position;
+
+            this.studentService.updateEnrollmentCount(nextInWaitList.studentId, 1);
+            this.courseService.updateEnrollmentCount(courseId, 1);
+
+            return { success: true, processedWaitList: nextInWaitList}
+        }
+
+        return { success: true}
+
+    }
 
 
 

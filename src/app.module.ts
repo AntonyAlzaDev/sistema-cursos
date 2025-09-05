@@ -5,11 +5,11 @@ import { StudentsModule } from './students/students.module';
 import { CoursesModule } from './courses/courses.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { AnalyticsModule } from './analytics/analytics.module';
-import { StudendsService } from './studends/studends.service';
+import { StudentsService } from './students/students.service';
 
 @Module({
   imports: [StudentsModule, CoursesModule, EnrollmentsModule, AnalyticsModule],
   controllers: [AppController],
-  providers: [AppService, StudendsService],
+  providers: [AppService, StudentsService],
 })
 export class AppModule {}
